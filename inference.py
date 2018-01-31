@@ -241,7 +241,7 @@ def evaluate_both(data_source, data_source2, batch_size=10):
     			# print ('word: ', corpus.dictionary.idx2word[tp])
     			tp = symbol_table[pos]
     			print  ('cand type id by symbol table: ', tp)
-    			print ('word: ', corpus.dictionary.idx2word[tp])
+    			print ('type word: ', corpus2.dictionary.idx2word[tp])
     			
     			print 'prob for candidate : ', corpus.dictionary.idx2word[pos], ' is: ', output_flat_cb.data[idxx][pos], ' map to type: ', corpus2.dictionary.idx2word[tp], ' with prob: ', output_flat2.data[idxx][tp] 
     			output_flat_cb.data[idxx][pos] += output_flat2.data[idxx][tp]
