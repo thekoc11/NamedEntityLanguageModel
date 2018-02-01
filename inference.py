@@ -159,12 +159,12 @@ def evaluate2(data_source, batch_size=10):
 
 
 def get_symbol_table(data, types):
-	print('in sym table')
+	# print('in sym table')
 
 	# print ({i[0]: types.data[0] for i in data.data})
 	# data = data.data
 	# types = types.data
-	print(data, " \n types: ", types)
+	# print(data, " \n types: ", types)
 	id_map ={}
 	i = 0
 	# for pos, tp in zip(data.data, types.data):
@@ -172,8 +172,8 @@ def get_symbol_table(data, types):
 	for pos, tp in zip(data, types):
 		id_map.update({pos.data[0]:tp.data[0]})
 
-	print ('symbol table:::')
-	print (id_map)
+	# print ('symbol table:::')
+	# print (id_map)
 	return id_map
 
 
@@ -187,13 +187,18 @@ def evaluate_both(data_source, data_source2, batch_size=10):
     total_loss = 0
     total_loss2 = 0
     total_loss_cb = 0
-
+    total_loss_cb2 = 0
+    total_loss_cb3 = 0
+    total_loss_cb_always = 0
 
     ntokens2 = len(corpus2.dictionary)
     ntokens = len(corpus.dictionary)
     hidden = model.init_hidden(batch_size)
     hidden2 = model2.init_hidden(batch_size)
-    for i in range(0, data_source.size(0) - 1, args.bptt):
+    m = nn.Softmax()
+
+
+    for batch,i in enumerate(range(0, data_source.size(0) - 1, args.bptt)):
         data, targets = get_batch(data_source, i, args, evaluation=True)
         data2, targets2 = get_batch(data_source2, i, args, evaluation=True)
 
@@ -204,7 +209,7 @@ def evaluate_both(data_source, data_source2, batch_size=10):
         output_flat2 = output2.view(-1, ntokens2)
         output_flat = output.view(-1, ntokens)
 
-     #    m = nn.Softmax()
+        
     	# output_flat_f = m(output_flat)
     	# output_flat_tf = m(output_flat2)
     	print ('data.data:' ,data.data, [corpus.dictionary.idx2word[i[0]] for i in data.data])
@@ -216,26 +221,33 @@ def evaluate_both(data_source, data_source2, batch_size=10):
     	candidates_type = set([corpus2.dictionary.idx2word[i.data[0]] for i in targets2])
     	candidates_ids_type = set([i.data[0] for i in targets2])
 
-    	print ('data2.data:' ,data2.data, [corpus2.dictionary.idx2word[i[0]] for i in data2.data])
+    	# print ('data2.data:' ,data2.data, [corpus2.dictionary.idx2word[i[0]] for i in data2.data])
     	numwords = output_flat.size()[0]
-    	print ('numwords to predict: ', numwords)
+    	# print ('numwords to predict: ', numwords)
     	# symbol_table = get_symbol_table(data, data2)
     	symbol_table = get_symbol_table(targets, targets2)
+
+    	output_flat_f = m(output_flat)
+        output_flat_tf = m(output_flat2)
+
     	output_flat_cb= output_flat.clone()
+    	output_flat_cb2= output_flat_f.clone()
 
-    	print ('two words: ',corpus.dictionary.idx2word[data.data[0][0]], corpus.dictionary.idx2word[data.data[1][0]])
-    	print( ' target: ', corpus.dictionary.idx2word[targets[0].data[0]], corpus.dictionary.idx2word[targets[1].data[0]])
-    	print ('total # word to pred: ', len(data), len(targets), numwords)
+    	output_flat_cb_always = output_flat_f.clone()
+    	# print ('two words: ',corpus.dictionary.idx2word[data.data[0][0]], corpus.dictionary.idx2word[data.data[1][0]])
+    	# print( ' target: ', corpus.dictionary.idx2word[targets[0].data[0]], corpus.dictionary.idx2word[targets[1].data[0]])
+    	# print ('total # word to pred: ', len(data), len(targets), numwords)
     	for idxx in range(numwords):
-    		print (idxx, "'th prediction: ", 'word: ', corpus.dictionary.idx2word[data.data[idxx][0]], 'target: ', corpus.dictionary.idx2word[targets[idxx].data[0]])
-    		i = 0
-    		print (candidates, len(candidates))
-
-    		for pos in targets: #for all candidates
+    		# print ('=='*20, "\n",idxx, "'th prediction: ", 'word: ', corpus.dictionary.idx2word[data.data[idxx][0]], 'target: ', corpus.dictionary.idx2word[targets[idxx].data[0]], 'candidates: ',[corpus.dictionary.idx2word[i.data[0]] for i in targets])
+    		# print ('forward prob dim:', output_flat_cb[idxx].size())
+    		# sortd, indices = output_flat_f[idxx].clone().sort(descending=True)
+    		# print('sorted:' , sortd[:5], [corpus.dictionary.idx2word[i.data[0]] for i in indices[:5]])
+    		for pos in candidates_ids: #for all candidates
     			
-    			pos = pos.data[0]
-    			print  ('cand id : ', pos)
+    			print ('='*5)
+    			print  ('\n\ncand id : ', pos)
     			print ('word: ', corpus.dictionary.idx2word[pos])
+    			print ('='*5)
 
     			# print  ('cand type id by loop from targets2: ', tp)
     			# print ('word: ', corpus.dictionary.idx2word[tp])
@@ -243,21 +255,61 @@ def evaluate_both(data_source, data_source2, batch_size=10):
     			print  ('cand type id by symbol table: ', tp)
     			print ('type word: ', corpus2.dictionary.idx2word[tp])
     			
-    			print 'prob for candidate : ', corpus.dictionary.idx2word[pos], ' is: ', output_flat_cb.data[idxx][pos], ' map to type: ', corpus2.dictionary.idx2word[tp], ' with prob: ', output_flat2.data[idxx][tp] 
-    			output_flat_cb.data[idxx][pos] += output_flat2.data[idxx][tp]
-    		# 	i +=1
+    			print ('prob for candidate : ', corpus.dictionary.idx2word[pos], ' is: ', output_flat_cb.data[idxx][pos], ' map to type: ', corpus2.dictionary.idx2word[tp], ' with prob: ', output_flat2.data[idxx][tp], ' now: ', output_flat_cb.data[idxx][pos] + output_flat2.data[idxx][tp] )
+    			var_prob = output_flat_cb2.data[idxx][pos]
+    			type_prob = output_flat_tf.data[idxx][tp]
 
-# 
+
+
+    			new_prob1 = var_prob+type_prob
+    			output_flat_cb_always.data[idxx][pos] += output_flat_tf.data[idxx][tp]
+    			if corpus2.dictionary.idx2word[tp]!=corpus.dictionary.idx2word[pos]:
+    				output_flat_cb2.data[idxx][pos] += output_flat_tf.data[idxx][tp]
+    				# output_flat_cb3.data[idxx][pos] += output_flat_tf.data[idxx][tp]
+    			# output_flat_cb2.data[idxx][pos] += output_flat_tf.data[idxx][tp]
+    			new_prob = output_flat_cb2.data[idxx][pos]
+    			new_prob_always = output_flat_cb2.data[idxx][pos]
+    			print ('new prob1: ', new_prob1)
+    			print ('prob for candidate : ', corpus.dictionary.idx2word[pos], ' is: ', var_prob, ' map to type: ', corpus2.dictionary.idx2word[tp], ' with prob: ', type_prob, ' now: ', new_prob )
+    			
+
+    			output_flat_cb.data[idxx][pos] += output_flat2.data[idxx][tp]
+    			# output_flat_cb3.data[idxx][pos] += output_flat_tf.data[idxx][tp]
+
+    	# fix this
+	    	print ('actual target: ', targets[idxx].data[0], corpus.dictionary.idx2word[targets[idxx].data[0]], ' has prob before combine: ', output_flat_f[idxx][targets[idxx].data[0]], ' now score becomes: ',(output_flat_cb2)[idxx][targets[idxx].data[0]], ' prob becomes: ',m(output_flat_cb2)[idxx][targets[idxx].data[0]]  )
+	    	
+
+	    	print ('forward prob dim:', output_flat_cb2[idxx].size())
+	    	sortd, indices = output_flat_cb2[idxx].clone().sort(descending=True)
+	    	print('sorted after combine :' , sortd[:5], [corpus.dictionary.idx2word[i.data[0]] for i in indices[:5]])
+    		
+
+
+    	print ('loss cb step: ', len(data) * criterion(output_flat_cb, targets).data)
+    	print ('loss cb2 step without softmax/log again raw scored: ', len(data) * nn.functional.nll_loss(output_flat_cb2, targets, size_average=True))
+    	print ('loss cb2 step: ', len(data) * nn.functional.nll_loss(torch.log(m(output_flat_cb2)), targets, size_average=True))
+    	
+    	print ('loss cb2 step with softmax but without log again raw scored: ', len(data) * nn.functional.nll_loss(m(output_flat_cb2), targets, size_average=True))
+    
+    	
+
+    	# exit()
         total_loss += len(data) * criterion(output_flat, targets).data
         total_loss2 += len(data2) * criterion(output_flat2, targets2).data
-        total_loss_cb += len(data2) * criterion(output_flat_cb, targets).data
-
-        # print (' soccer: ', len(data) * criterion(output_flat, targets).data), ' my: ',  len(data) * criterion(output_flat_f, targets).data
-
+        total_loss_cb += len(data) * criterion(output_flat_cb, targets).data
+        # total_loss_cb2 += len(data) * nn.functional.nll_loss(torch.log(m(output_flat_cb2)), targets, size_average=True)
+        total_loss_cb2 += len(data) * nn.functional.nll_loss(output_flat_cb2, targets, size_average=True)
+        total_loss_cb3 += len(data) * nn.functional.nll_loss(m(output_flat_cb2), targets, size_average=True)
+        print (' soccer: ', len(data) * criterion(output_flat, targets).data), ' my: ',  len(data) * criterion(output_flat_f, targets).data
+        if(batch%500==0): print ("done batch ", batch, ' of ', len(data_source)/ eval_batch_size)
 
         hidden = repackage_hidden(hidden)
         hidden2 = repackage_hidden(hidden2)
 
+
+
+    print 'total_loss_cb2[0] / len(data_source): ', total_loss_cb2[0] / len(data_source), 'total_loss_cb3[0] / len(data_source): ', total_loss_cb3[0] / len(data_source)
     return total_loss[0] / len(data_source), total_loss2[0] / len(data_source2), total_loss_cb[0] / len(data_source)
 
 
@@ -375,7 +427,7 @@ with open(args.save_type, 'rb') as f:
 #     test_loss, math.exp(test_loss)))
 # print('=' * 89)
 
-test_loss, test_loss2, test_loss_cb = evaluate_both(test_data[:args.debug], test_data2[:args.debug], test_batch_size)
+test_loss, test_loss2, test_loss_cb = evaluate_both(test_data[:1], test_data2[:1], test_batch_size)
 print('=' * 189)
 print('| End of training | test var loss {:5.2f} | test var ppl {:8.2f} | test type loss {:5.2f} | test type ppl {:8.2f} | test cb loss {:5.2f} | test cb ppl {:8.2f}'.format(
     test_loss, math.exp(test_loss), test_loss2, math.exp(test_loss2),  test_loss_cb, math.exp(test_loss_cb) ))
