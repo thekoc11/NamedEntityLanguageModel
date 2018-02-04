@@ -34,7 +34,9 @@ If you are using Anaconda, installation of PyTorch 0.1.12 can be achieved via:
 `conda install pytorch=0.1.12 -c soumith`.
 
 ## Experiments
+##### python main.py --batch_size 20 --data ../data/recipe_ori/ --dropouti 0.4 --dropouth 0.25 --seed 141 --epoch 50 --save RCP_LSTM_ori_with_type.pt
 
+##### python main.py --batch_size 20 --data ../data/recipe_type/ --dropouti 0.4 --dropouth 0.25 --seed 141 --epoch 50 --save RCP_type_LSTM_one_vocab.pt 
 The codebase was modified during the writing of the paper, preventing exact reproduction due to minor differences in random seeds or similar.
 We have also seen exact reproduction numbers change when changing underlying GPU.
 The guide below produces results largely similar to the numbers reported.
