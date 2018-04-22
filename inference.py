@@ -59,7 +59,7 @@ parser.add_argument('--cuda', action='store_false',
 parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='report interval')
 randomhash = ''.join(str(time.time()).split('.'))
-parser.add_argument('--save', type=str,  default='RCP_LSTM_ori_with_type.pt',
+parser.add_argument('--save', type=str,  default='RCP_or_type.pt', #RCP_LSTM_ori_with_type
                     help='path to save the final model')
 parser.add_argument('--save_type', type=str,  default='RCP_type_LSTM_one_vocab.pt',
                     help='path to save the final model')
@@ -71,6 +71,14 @@ parser.add_argument('--wdecay', type=float, default=1.2e-6,
                     help='weight decay applied to all weights')
 args = parser.parse_args()
 
+
+
+mcq_wrd = ['chicken','bread', 'apple', 'milk', 'salt', 'tomato'] #ch=6134, bread=3553, apple = 16, milk=4359, salt=10576, tomato=3965
+#mcq_ids = [192, 398, 1437, 41, 70, 740]
+
+# record = {corpus.dictionary.word2idx['chicken'] : [], corpus.dictionary.word2idx['bread'] : [], corpus.dictionary.word2idx['apple'] : [], corpus.dictionary.word2idx['milk'] : [], corpus.dictionary.word2idx['salt'] : [], corpus.dictionary.word2idx['tomato'] : []}
+record = {192:[], 398:[], 1437:[], 41:[], 70:[], 740:[] }
+mcq_result = {192:[], 398:[], 1437:[], 41:[], 70:[], 740:[] }
 # Set the random seed manually for reproducibility.
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
@@ -78,7 +86,7 @@ if torch.cuda.is_available():
     if not args.cuda:
         print("WARNING: You have a CUDA device, so you should probably run with --cuda")
     else:
-    	torch.cuda.set_device(0)
+        torch.cuda.set_device(0)
         torch.cuda.manual_seed(args.seed)
 
 ###############################################################################
@@ -98,8 +106,8 @@ val_data_type = batchify(corpus.valid_type, eval_batch_size, args)
 test_data_type = batchify(corpus.test_type, test_batch_size, args)
 
 
-
 corpus2 = data.Corpus(args.data_type)
+
 
 train_data2 = batchify(corpus2.train, args.batch_size, args)
 val_data2 = batchify(corpus2.valid, eval_batch_size, args)
@@ -129,6 +137,8 @@ print('Model total parameters:', total_params)
 
 
 criterion = nn.CrossEntropyLoss()
+
+# print (ntokens, ntokens2)
 
 ###############################################################################
 # Testing code
@@ -166,22 +176,11 @@ def evaluate2(data_source, batch_size=10):
 
 
 def get_symbol_table(data, types):
-	# print('in sym table')
-
-	# print ({i[0]: types.data[0] for i in data.data})
-	# data = data.data
-	# types = types.data
-	# print(data, " \n types: ", types)
-	id_map ={}
-	i = 0
-	# for pos, tp in zip(data.data, types.data):
-	# 	id_map.update({pos[0]:tp[0]})
-	for pos, tp in zip(data, types):
-		id_map.update({pos.data[0]:tp.data[0]})
-
-	# print ('symbol table:::')
-	# print (id_map)
-	return id_map
+    id_map ={}
+    i = 0
+    for pos, tp in zip(data, types):
+        id_map.update({pos.data[0]:tp.data[0]})
+    return id_map
 
 
 def evaluate_both(data_source, data_source_type, data_source2, batch_size=10):
@@ -189,19 +188,18 @@ def evaluate_both(data_source, data_source_type, data_source2, batch_size=10):
     model2.eval()
     model.eval()
     if args.model == 'QRNN': 
-    	model2.reset()
-    	model.reset()
+        model2.reset()
+        model.reset()
     total_loss = 0
     total_loss2 = 0
     total_loss_cb = 0
-    # total_loss_cb2 = 0
-    # total_loss_cb3 = 0
 
     ntokens2 = len(corpus2.dictionary)
     ntokens = len(corpus.dictionary)
     hidden = model.init_hidden(batch_size)
     hidden2 = model2.init_hidden(batch_size)
     m = nn.Softmax()
+    mcq_ids = [corpus.dictionary.word2idx[w] for w in mcq_wrd]
 
 
     for batch,i in enumerate(range(0, data_source.size(0) - 1, args.bptt)):
@@ -209,6 +207,8 @@ def evaluate_both(data_source, data_source_type, data_source2, batch_size=10):
         data2, targets2 = get_batch(data_source2, i, args, evaluation=True)
 
         data_type, targets_type = get_batch(data_source_type, i, args, evaluation=True)
+
+        
 
         if(batch_size==1):
             hidden = model.init_hidden(batch_size)
@@ -221,49 +221,104 @@ def evaluate_both(data_source, data_source_type, data_source2, batch_size=10):
         output_flat = output.view(-1, ntokens)
 
         
-    	# print ('data.data:' ,data.data, [corpus.dictionary.idx2word[i[0]] for i in data.data])
-    	# print ([corpus.dictionary.idx2word[i.data[0]] for i in targets])
-    	candidates = set([corpus.dictionary.idx2word[i.data[0]] for i in targets])
-    	candidates_ids = set([i.data[0] for i in targets])
+        candidates = set([corpus.dictionary.idx2word[i.data[0]] for i in targets])
+        candidates_ids = set([i.data[0] for i in targets])
 
-    	candidates_type = set([corpus2.dictionary.idx2word[i.data[0]] for i in targets2])
-    	candidates_ids_type = set([i.data[0] for i in targets2])
-    	numwords = output_flat.size()[0]
-    	symbol_table = get_symbol_table(targets, targets2)
+        candidates_type = set([corpus2.dictionary.idx2word[i.data[0]] for i in targets2])
+        candidates_ids_type = set([i.data[0] for i in targets2])
+        numwords = output_flat.size()[0]
+        symbol_table = get_symbol_table(targets, targets2)
 
 
 
-    	output_flat_cb= output_flat.clone()
-    	for idxx in range(numwords):
-    		for pos in candidates_ids: #for all candidates
+        output_flat_cb= output_flat.clone()
+        sums = []
+        for idxx in range(numwords):
+            for pos in candidates_ids: #for all candidates
 
-    			tp = symbol_table[pos]
-    			new_prob1 = var_prob = output_flat_cb.data[idxx][pos]
-    			type_prob = output_flat2.data[idxx][tp]
-    			
-    			if corpus.dictionary.idx2word[pos]!=corpus2.dictionary.idx2word[tp]: new_prob1 = (var_prob + type_prob) #/ 2
-    			output_flat_cb.data[idxx][pos] = new_prob1
-    			
+                tp = symbol_table[pos]
+                var_prob = output_flat_cb.data[idxx][pos]
+                type_prob = output_flat2.data[idxx][tp]
+                new_prob1 = 2*var_prob #just to scale values, emperical
+                
+                if corpus.dictionary.idx2word[pos]!=corpus2.dictionary.idx2word[tp]: new_prob1 = (var_prob + type_prob) #/ 2
+                output_flat_cb.data[idxx][pos] = new_prob1
+                
         total_loss += len(data) * criterion(output_flat, targets).data
         total_loss2 += len(data2) * criterion(output_flat2, targets2).data
         total_loss_cb += len(data) * criterion(output_flat_cb, targets).data
         
+        
+        #########
+        temp_output = output_flat_cb.clone()
+        # print("our model") 
+        # or 
+        temp_output_entity_composite = output_flat.clone()
+        temp_output_type = output_flat2.clone()
+        # print("awd-st baseline")
+        #########
+
+
+        val, keys_t = temp_output.data.max(1)
+
+        val_entity_composite, keys_t_entity_composite = temp_output_entity_composite.data.max(1)
+        val_type, keys_t_type = temp_output_type.data.max(1)
+
+        prob_temp_output = m(temp_output)
+        prob_temp_output_baseline = m(temp_output_entity_composite)
+        prob_temp_output_type = m(temp_output_type)
+
+        prb_val, prb_keys = prob_temp_output.data.max(1)
+        prb_val_entity_composite, prb_keys_entity_composite = prob_temp_output_baseline.data.max(1)
+        prb_val_type, prb_keys_type = prob_temp_output_type.data.max(1)
+
+        for i in range(len(targets.data)): 
+            w= targets.data[i]
+
+            voilated = 0
+            base = temp_output.data[i][w]
+            if w in mcq_ids: 
+                r = 0
+                r2 = 0
+                pred = keys_t[i]
+                if pred==w: 
+                    r=1
+                for idd in mcq_ids:
+                    if idd!=w:
+                        if base<temp_output.data[i][idd]:
+                            voilated=1
+                            break
+                     
+                record[w].append(r)
+                if voilated==0: r2 = 1
+                mcq_result[w].append(r2)
+
+
+            
+            
+
 
         # print (' soccer: ', len(data) * criterion(output_flat, targets).data), ' my: ',  len(data) * criterion(output_flat_cb, targets).data
         if(batch%500==0): 
-        	print(' only ingred not avg')
-        	print ("done batch ", batch, ' of ', len(data_source)/ eval_batch_size)
-        	test_loss_cb = total_loss_cb[0] / len(data_source)
-        	test_loss = total_loss[0] / len(data_source)
-        	test_loss2 = total_loss2[0] / len(data_source)
-        	p = (100*batch)/(33000)
-        	print('=' * 160)
-        	print('| after: {:5.2f}% | test var loss {:5.2f} | test var ppl {:8.2f} | test type loss {:5.2f} | test type ppl {:8.2f} | test cb loss {:5.2f} | test cb ppl {:8.2f}'.format(
-			    p, test_loss, math.exp(test_loss), test_loss2, math.exp(test_loss2),  test_loss_cb, math.exp(test_loss_cb) ))
-        	print('=' * 160)
+            # print(' only ingred not avg')
+            # print ("done batch ", batch, ' of ', len(data_source)/ eval_batch_size)
+            test_loss_cb = total_loss_cb[0] / len(data_source)
+            test_loss = total_loss[0] / len(data_source)
+            test_loss2 = total_loss2[0] / len(data_source)
+            p = (100*batch)/(33000)
+            print('=' * 160)
+            print('| after: {:5.2f}% | test var loss {:5.2f} | test var ppl {:8.2f} | test type loss {:5.2f} | test type ppl {:8.2f} | test cb loss {:5.2f} | test cb ppl {:8.2f}'.format(
+                p, test_loss, math.exp(test_loss), test_loss2, math.exp(test_loss2),  test_loss_cb, math.exp(test_loss_cb) ))
+            print('=' * 160)
 
         hidden = repackage_hidden(hidden)
-        hidden2 = repackage_hidden(hidden2)
+        hidden2 = repackage_hidden(hidden2) 
+
+
+    for idd in record: 
+        if len(record[idd]) >0:
+            print (corpus.dictionary.idx2word[idd], ' acc: ', sum(record[idd]), ' out of ', len(record[idd]), sum(record[idd])*100.0/len(record[idd])  )
+            print (corpus.dictionary.idx2word[idd], ' mcq acc: ', sum(mcq_result[idd]), ' out of ', len(mcq_result[idd]), sum(mcq_result[idd])*100.0/len(mcq_result[idd]))
 
 
 
@@ -271,127 +326,18 @@ def evaluate_both(data_source, data_source_type, data_source2, batch_size=10):
 
 
 
-def infer(valid_data_trimed, valid_type_data_trimed, forward_model,  forward_type_model, var_dict, type_dict, criterion, eval_batch_size):
-        # Turn on evaluation mode which disables dropout.
-        forward_model.eval()
-       
-        forward_type_model.eval()
-        
-
-        total_mean_loss_f = 0
-        total_mean_loss_tf = 0
-        total_mean_loss_cb = 0
-        
-
-        ntokens = len(var_dict)
-        type_ntokens = len(type_dict)
-
-
-        for batch, i in enumerate  (range(0, valid_data_trimed.size(0) - 1, args.bptt)):
-        	data_f, targets_f = get_batch(valid_data_trimed, i, args, evaluation=True)
-        	data_tf, targets_tf = get_batch(valid_type_data_trimed, i, args, evaluation=True)
-        	#mask = data.ne(dictionary.padding_id)
-        	hidden_f = forward_model.init_hidden(eval_batch_size)
-        	hidden_tf = forward_type_model.init_hidden(eval_batch_size) #for each sentence need to initialize
-
-        	output_f, hidden_f = forward_model(data_f, hidden_f)
-        	output_tf, hidden_tf = forward_type_model(data_tf, hidden_tf)
-
-        	output_flat_f = output_f.view(-1, ntokens)
-        	output_flat_tf = output_tf.view(-1, type_ntokens) # (batch x seq) x ntokens 
-
-        	m = nn.Softmax()
-        	output_flat_f = m(output_flat_f)
-        	output_flat_tf = m(output_flat_tf)
-
-
-        	numwords = output_flat_f.size()[0]
-        	symbol_table = get_symbol_table(data_f, data_tf)
-        	# print(symbol_table)
-        	output_flat_cb= output_flat_f.clone()#torch.FloatTensor(output_flat_b.size()).zero_()#copy[:]
-        	
-
-        	for idxx in range(numwords):
-        		for pos in set(data_f.data[0]): 
-        			tp = symbol_table[pos]
-        			output_flat_cb.data[idxx][pos] += output_flat_tf.data[idxx][tp]
-
-        	loss_f = criterion(output_flat_f, targets_f)
-        	loss_tf = criterion(output_flat_tf, targets_tf)
-        	loss_cb =  nn.functional.nll_loss(torch.log(m(output_flat_cb)), targets_f, size_average=True)
-
-
-        	total_mean_loss_f += len(data_f) * loss_f.data
-        	total_mean_loss_cb += len(data_f) * loss_cb.data
-        	total_mean_loss_tf += len(data_f) * loss_tf.data
-
-
-        	if(batch%500==0): print ("done batch ", batch, ' of ', len(valid_data_trimed)/ eval_batch_size)
-
-        batch +=1 #starts counting from 0 hence total num batch (after finishing) = batch + 1
-
-        avg_loss_f = total_mean_loss_f[0]/valid_data_trimed.size(0)
-        avg_loss_cb = total_mean_loss_cb[0]/valid_data_trimed.size(0)
-        avg_loss_tf = total_mean_loss_tf[0]/valid_data_trimed.size(0)
-
-
-
-        ppl_f = math.exp(avg_loss_f)
-        ppl_cb = math.exp(avg_loss_cb)
-        ppl_tf = math.exp(avg_loss_tf)
-
-
-
-             
-        print('Var model direction {} avg loss: {:.2f}  ppl: {:.2f} '.format(  'forward', avg_loss_f, ppl_f))
-        print('Type model direction {} avg loss: {:.2f}  ppl: {:.2f} '.format(  'combined ', avg_loss_cb, ppl_cb))
-        print('Type model direction {} avg loss: {:.2f}  ppl: {:.2f} '.format(  'forward', avg_loss_tf, ppl_tf))
-        
-
-           
-           
-
-
-
-
-
-
-
-
-
-
 # Load the best saved model.
 with open(args.save, 'rb') as f:
-    # model = torch.load(f)
     model.load_state_dict(torch.load(f))
 with open(args.save_type, 'rb') as f:
-    # model = torch.load(f)
     model2.load_state_dict(torch.load(f))
 
-# Run on test data.
-# test_loss = evaluate(test_data[:args.debug], test_batch_size)
-# print('=' * 89)
-# print('| End of var training | test loss {:5.2f} | test ppl {:8.2f}'.format(
-#     test_loss, math.exp(test_loss)))
-# print('=' * 89)
-
-
-
-# test_loss = evaluate2(test_data2[:args.debug], test_batch_size)
-# print('=' * 89)
-# print('| End of type training | test loss {:5.2f} | test ppl {:8.2f}'.format(
-#     test_loss, math.exp(test_loss)))
-# print('=' * 89)
+test_batch_size = 1
 
 test_loss, test_loss2, test_loss_cb = evaluate_both(test_data, test_data_type, test_data2, test_batch_size)
-# test_loss, test_loss2, test_loss_cb = evaluate_both(test_data[:10], test_data_type[:10] ,test_data2[:10], test_batch_size)
 print('=' * 165)
 print('| End of testing | test var loss {:5.2f} | test var ppl {:8.2f} | test type loss {:5.2f} | test type ppl {:8.2f} | test cb loss {:5.2f} | test cb ppl {:8.2f}'.format(
     test_loss, math.exp(test_loss), test_loss2, math.exp(test_loss2),  test_loss_cb, math.exp(test_loss_cb) ))
 print('=' * 165)
 
-
-
-# infer(test_data[:args.debug], test_data2[:args.debug], model, model2, corpus.dictionary, corpus2.dictionary, criterion, test_batch_size)
-     
 
