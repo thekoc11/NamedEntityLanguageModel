@@ -1,4 +1,4 @@
-#### This is the codebase of the paper: Building Language Model for Text with Named Enitities, Rizwan et., al., (ACL, 18).
+## This is the codebase of the paper: Building Language Model for Text with Named Enitities, Rizwan et., al., (ACL, 18).
 
 ##### 1. We use main.py to train baseline ASD_LSTM model, and type model. 
 ##### 2. To train entity composite model we use main_ori_with_type.py. 
