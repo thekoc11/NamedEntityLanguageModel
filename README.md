@@ -11,6 +11,17 @@
 
 #### 7. The the code corpus can be found at (https://drive.google.com/file/d/13ZE1ZkPPFxaHnqixXIEhcZhu4cKJK65R/view?usp=sharing). Although We report basic LSTM performance in the paper running with this codebase on this dataset should give better result. 
 
+#### If you use this code or data or our results in your research, please cite:
+
+```
+@inproceedings{PCRC18,
+author = {Md Rizwan Parvez and Saikat Chakraborty and Baishakhi Ray and Kai-Wei Chang},
+title = {Building Language Models for Text with Named Entities}, 
+booktitle = {ACL}, 
+year = {2018},
+}
+```
+
 
 ## About Baseline (forked from the baseline source code path)
 
