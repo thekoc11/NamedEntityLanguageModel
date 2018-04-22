@@ -1,4 +1,4 @@
-# We use main.py to train baseline ASD_LSTM model, and type model. to train entity composite model we use main_ori_with_type.py. At inference we use inference.py (inference_loaded.py in the google drive shared bellow).
+### We use main.py to train baseline ASD_LSTM model, and type model. to train entity composite model we use main_ori_with_type.py. At inference we use inference.py (inference_loaded.py in the google drive shared bellow).
 
 To reproduce our result simply run 'python inference_loaded.py' of https://drive.google.com/drive/folders/1VhFvOHDQcTV7_gJ5BhAqccG4otRWIdLY?usp=sharing which will use the already trained models.  The corresponding data are in awd-lstm-lm/data folder)
 
