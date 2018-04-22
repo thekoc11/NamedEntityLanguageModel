@@ -9,7 +9,7 @@
 
 ##### 6. The uncleaned datasets are also relesead for future challenge (can be found in awd-lstm-lm/recipies/data/corpus in the google drive path shared above)
 
-#### 7. The the code corpus can be found at (https://drive.google.com/file/d/13ZE1ZkPPFxaHnqixXIEhcZhu4cKJK65R/view?usp=sharing). Although We report basic LSTM performance in the paper running with this codebase on this dataset will give better result. 
+#### 7. The the code corpus can be found at (https://drive.google.com/file/d/13ZE1ZkPPFxaHnqixXIEhcZhu4cKJK65R/view?usp=sharing). Although We report basic LSTM performance in the paper running with this codebase on this dataset should give better result. 
 
 
 ## About Baseline (forked from the baseline source code path)
