@@ -1,11 +1,15 @@
-##### We use main.py to train baseline ASD_LSTM model, and type model. 
-##### To train entity composite model we use main_ori_with_type.py. 
-##### At inference, we use inference.py (inference_loaded.py in the google drive shared bellow).
+#### This is the codebase of the paper: Building Language Model for Text with Named Enitities, Rizwan et., al., (ACL, 18).
 
-##### To reproduce our result, simply run 'python inference_loaded.py' of https://drive.google.com/drive/folders/1VhFvOHDQcTV7_gJ5BhAqccG4otRWIdLY?usp=sharing which will use the already trained models.  
-##### The corresponding data are in awd-lstm-lm/data folder in link shared above.
+##### 1. We use main.py to train baseline ASD_LSTM model, and type model. 
+##### 2. To train entity composite model we use main_ori_with_type.py. 
+##### 3. At inference, we use inference.py (inference_loaded.py in the google drive shared bellow).
 
-##### The uncleaned datasets are also relesead for future challenge (can be found in awd-lstm-lm/recipies/data/corpus in the google drive path shared above)
+##### 4. To reproduce our result, simply run 'python inference_loaded.py' of https://drive.google.com/drive/folders/1VhFvOHDQcTV7_gJ5BhAqccG4otRWIdLY?usp=sharing which will use the already trained models.  
+##### 5. The corresponding data are in awd-lstm-lm/data folder in link shared above.
+
+##### 6. The uncleaned datasets are also relesead for future challenge (can be found in awd-lstm-lm/recipies/data/corpus in the google drive path shared above)
+
+#### 7. The the code corpus can be found at (https://drive.google.com/file/d/13ZE1ZkPPFxaHnqixXIEhcZhu4cKJK65R/view?usp=sharing). Although We report basic LSTM performance in the paper running with this codebase on this dataset will give better result. 
 
 
 ## About Baseline (forked from the baseline source code path)
