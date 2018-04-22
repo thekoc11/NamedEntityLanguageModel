@@ -6,13 +6,13 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-import data
+import data as data
 import model
 
 from utils import batchify, get_batch, repackage_hidden
 
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
-parser.add_argument('--data', type=str, default='data/penn/',
+parser.add_argument('--data', type=str, default='../data/recipe_ori',
                     help='location of the data corpus')
 parser.add_argument('--model', type=str, default='LSTM',
                     help='type of recurrent net (LSTM, QRNN, GRU)')
@@ -50,10 +50,10 @@ parser.add_argument('--nonmono', type=int, default=5,
                     help='random seed')
 parser.add_argument('--cuda', action='store_false',
                     help='use CUDA')
-parser.add_argument('--log-interval', type=int, default=200, metavar='N',
+parser.add_argument('--log-interval', type=int, default=5000, metavar='N',
                     help='report interval')
 randomhash = ''.join(str(time.time()).split('.'))
-parser.add_argument('--save', type=str,  default=randomhash+'.pt',
+parser.add_argument('--save', type=str,  default='RCP_ori_LSTM_one_vocab'+'.pt',
                     help='path to save the final model')
 parser.add_argument('--alpha', type=float, default=2,
                     help='alpha L2 regularization on RNN activation (alpha = 0 means no regularization)')
@@ -62,7 +62,7 @@ parser.add_argument('--beta', type=float, default=1,
 parser.add_argument('--wdecay', type=float, default=1.2e-6,
                     help='weight decay applied to all weights')
 args = parser.parse_args()
-
+# print (args)
 # Set the random seed manually for reproducibility.
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
@@ -70,6 +70,7 @@ if torch.cuda.is_available():
     if not args.cuda:
         print("WARNING: You have a CUDA device, so you should probably run with --cuda")
     else:
+        torch.cuda.set_device(0)
         torch.cuda.manual_seed(args.seed)
 
 ###############################################################################
@@ -89,6 +90,7 @@ test_data = batchify(corpus.test, test_batch_size, args)
 ###############################################################################
 
 ntokens = len(corpus.dictionary)
+print ('vocab : ', ntokens)
 model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.dropouth, args.dropouti, args.dropoute, args.wdrop, args.tied)
 if args.cuda:
     model.cuda()
@@ -111,6 +113,7 @@ def evaluate(data_source, batch_size=10):
     hidden = model.init_hidden(batch_size)
     for i in range(0, data_source.size(0) - 1, args.bptt):
         data, targets = get_batch(data_source, i, args, evaluation=True)
+        if (batch_size==1):hidden = model.init_hidden(batch_size)
         output, hidden = model(data, hidden)
         output_flat = output.view(-1, ntokens)
         total_loss += len(data) * criterion(output_flat, targets).data
@@ -141,6 +144,7 @@ def train():
         # Starting each batch, we detach the hidden state from how it was previously produced.
         # If we didn't, the model would try backpropagating all the way to start of the dataset.
         hidden = repackage_hidden(hidden)
+        if (args.batch_size==1):hidden = model.init_hidden(args.batch_size)
         optimizer.zero_grad()
 
         output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
@@ -159,6 +163,7 @@ def train():
 
         total_loss += raw_loss.data
         optimizer.param_groups[0]['lr'] = lr2
+
         if batch % args.log_interval == 0 and batch > 0:
             cur_loss = total_loss[0] / args.log_interval
             elapsed = time.time() - start_time
@@ -198,7 +203,8 @@ try:
 
             if val_loss2 < stored_loss:
                 with open(args.save, 'wb') as f:
-                    torch.save(model, f)
+                    # torch.save(model, f)
+                    torch.save(model.state_dict(), f)
                 print('Saving Averaged!')
                 stored_loss = val_loss2
 
@@ -215,7 +221,8 @@ try:
 
             if val_loss < stored_loss:
                 with open(args.save, 'wb') as f:
-                    torch.save(model, f)
+                    # torch.save(model, f)
+                    torch.save(model.state_dict(), f)
                 print('Saving Normal!')
                 stored_loss = val_loss
 
@@ -231,7 +238,8 @@ except KeyboardInterrupt:
 
 # Load the best saved model.
 with open(args.save, 'rb') as f:
-    model = torch.load(f)
+    # model = torch.load(f)
+    model.load_state_dict(torch.load(f))
 
 # Run on test data.
 test_loss = evaluate(test_data, test_batch_size)
