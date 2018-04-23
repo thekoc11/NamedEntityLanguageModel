@@ -77,7 +77,7 @@ class RNNModel(nn.Module):
         emb2 = self.lockdrop(emb2, self.dropouti)
 
         # raw_output = emb
-        raw_output = torch.cat((emb, emb), len(emb.size()) - 1)
+        raw_output = torch.cat((emb, emb2), len(emb.size()) - 1)
 
         new_hidden = []
         #raw_output, hidden = self.rnn(emb, hidden)
