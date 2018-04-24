@@ -1,7 +1,7 @@
 ## This is the codebase of the paper: Building Language Model for Text with Named Enitities, Rizwan et., al., (ACL, 18).
 
-##### 1. Setting the data path accordingly we use main.py to train baseline AWD_LSTM model, and type model. 
-##### 2. To train entity composite model we use main_ori_with_type.py. 
+##### 1. Setting the data path accordingly we use python3 main.py to train baseline AWD_LSTM model, and type model. 
+##### 2. To train entity composite model we use python3 main_ori_with_type.py. 
 ##### 3. At inference, we use inference.py (inference_loaded.py in the google drive shared bellow).
 
 ##### 4. To reproduce our result, simply run 'python inference_loaded.py' of https://drive.google.com/drive/folders/1VhFvOHDQcTV7_gJ5BhAqccG4otRWIdLY?usp=sharing which will use the already trained models.  
