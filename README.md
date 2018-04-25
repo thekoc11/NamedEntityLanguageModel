@@ -4,7 +4,8 @@
 ##### 2. To train entity composite model we use python3 main_ori_with_type.py. 
 ##### 3. At inference, we use inference.py.
 
-##### 4. To reproduce our result, simply run 'python inference_loaded.py' of https://drive.google.com/drive/folders/1VhFvOHDQcTV7_gJ5BhAqccG4otRWIdLY?usp=sharing which will use the already trained models.  
+##### 4. To reproduce our result, simply run 'python inference_loaded.py' of https://drive.google.com/drive/folders/1VhFvOHDQcTV7_gJ5BhAqccG4otRWIdLY?usp=sharing which will use the already trained models. In this version, we also show that with our joint inference schema, AWD_LSTM itself can work suffciiently well and replace the entity composite model. 
+
 ##### 5. The corresponding data are in awd-lstm-lm/data folder in link shared above.
 
 ##### 6. The uncleaned datasets are also relesead for future challenge (can be found in awd-lstm-lm/recipies/data/corpus in the google drive path shared above)
