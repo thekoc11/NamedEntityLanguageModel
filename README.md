@@ -10,7 +10,7 @@
 
 ##### 6. The uncleaned datasets are also relesead for future challenge (can be found in awd-lstm-lm/recipies/data/corpus in the google drive path shared above)
 
-#### 7. The the code corpus can be found at [here](https://drive.google.com/drive/folders/1DJev2PwKBAPlUMy-OsT4kKVlTM1Mj_XN?usp=sharing). Although We report basic LSTM performance in the paper running the AWD_LSTM model on this dataset should give better result. [To reproduce our result](https://drive.google.com/drive/folders/1fY0n89bWE_vGwKgNYWAhY_4_HjNLlwXy?usp=sharing) 
+#### 7. The the code corpus can be found at [here](https://drive.google.com/drive/folders/1DJev2PwKBAPlUMy-OsT4kKVlTM1Mj_XN?usp=sharing). Although We report basic LSTM performance in the paper running the AWD_LSTM model on this dataset should give better result. To reproduce our resultrun with inference3.py from [here](https://drive.google.com/drive/folders/1fY0n89bWE_vGwKgNYWAhY_4_HjNLlwXy?usp=sharing) 
 
 #### If you use this code or data or our results in your research, please cite:
 
