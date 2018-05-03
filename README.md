@@ -4,13 +4,13 @@
 ##### 2. To train entity composite model we use python3 main_ori_with_type.py. 
 ##### 3. At inference, we use inference.py.
 
-##### 4. To reproduce our result, simply run 'python3 inference_loaded.py' of [full_pretrained_project](https://drive.google.com/drive/folders/1VhFvOHDQcTV7_gJ5BhAqccG4otRWIdLY?usp=sharing) which will use the already trained models. In this version, we also show that with our joint inference schema, AWD_LSTM itself can work suffciiently well and replace the entity composite model. And note that we used nltk tokenizer while annotationg the types in this version. So it is slightly different than our current release. 
+##### 4. To reproduce our result, simply run 'python3 inference_loaded.py' of [full_pretrained_project](https://drive.google.com/drive/folders/1VhFvOHDQcTV7_gJ5BhAqccG4otRWIdLY?usp=sharing) which will use the already trained models. In this version, we also show that with our joint inference schema, AWD_LSTM itself can work suffciiently well and replace the entity composite model. Also note that we used nltk tokenizer while annotationg the types in this version. So it is slightly different than our current release. 
 
 ##### 5. The corresponding data are in awd-lstm-lm/data folder in link shared above.
 
 ##### 6. The uncleaned datasets are also relesead for future challenge (can be found in awd-lstm-lm/recipies/data/corpus in the google drive path shared above)
 
-#### 7. The the code corpus can be found at [here](https://drive.google.com/drive/folders/1DJev2PwKBAPlUMy-OsT4kKVlTM1Mj_XN?usp=sharing). Although We report basic LSTM performance in the paper running the AWD_LSTM model on this dataset should give better result. To reproduce our result, run with inference3.py from [here](https://drive.google.com/drive/folders/1fY0n89bWE_vGwKgNYWAhY_4_HjNLlwXy?usp=sharing).
+#### 7. The the code corpus can be found at [here](https://drive.google.com/drive/folders/1DJev2PwKBAPlUMy-OsT4kKVlTM1Mj_XN?usp=sharing). Although We report basic LSTM performance in the paper running the AWD_LSTM model on this dataset should give better result. To reproduce our result, run with inference3.py from [here](https://drive.google.com/drive/folders/1fY0n89bWE_vGwKgNYWAhY_4_HjNLlwXy?usp=sharing). Please note that, for the code corpus,  as variable scope is limited to each method, the context is initialized anew for each method instance.
 
 #### If you use this code or data or our results in your research, please cite:
 
