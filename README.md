@@ -27,7 +27,7 @@ year = {2018},
 ## About Baseline (forked from the baseline source code path)
 
 
-# AWD-LSTM / AWD-QRNN Language Model
+## AWD-LSTM / AWD-QRNN Language Model
 
 ### Averaged Stochastic Gradient Descent with Weight Dropped LSTM or QRNN
 
