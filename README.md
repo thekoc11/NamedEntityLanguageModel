@@ -15,11 +15,18 @@
 #### If you use this code or data or our results in your research, please cite:
 
 ```
-@inproceedings{PCRC18,
-author = {Md Rizwan Parvez and Saikat Chakraborty and Baishakhi Ray and Kai-Wei Chang},
-title = {Building Language Models for Text with Named Entities}, 
-booktitle = {ACL}, 
-year = {2018},
+@InProceedings{P18-1221,
+  author = 	"Parvez, Md Rizwan
+		and Chakraborty, Saikat
+		and Ray, Baishakhi
+		and Chang, Kai-Wei",
+  title = 	"Building Language Models for Text with Named Entities",
+  booktitle = 	"Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+  year = 	"2018",
+  publisher = 	"Association for Computational Linguistics",
+  pages = 	"2373--2383",
+  location = 	"Melbourne, Australia",
+  url = 	"http://aclweb.org/anthology/P18-1221"
 }
 ```
 
