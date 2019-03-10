@@ -1,7 +1,7 @@
 ## This is the codebase of the paper: Building Language Model for Text with Named Enitities, [Rizwan et., al., (ACL, 18)](https://arxiv.org/abs/1805.04836).
 
 ##### 1. Setting the [data path](https://github.com/rizwan09/awd-lstm-lm/tree/master/data) accordingly, we use command ``python3 main.py`` with default params to train baseline AWD_LSTM model, and type model. [uncleaned data is here](https://github.com/rizwan09/awd-lstm-lm/tree/master/raw_data).
-##### 2. To train entity composite model we use command ``python3 main_ori_with_type.py``. 
+##### 2. To train entity composite model we use command ``python3 main_ori_with_type.py`` with default params. 
 ##### 3. At inference, we use inference.py file.
 
 ##### 4. To reproduce our result, simply run command ``python3 inference_loaded.py`` of [full_pretrained_project](https://drive.google.com/drive/folders/1VhFvOHDQcTV7_gJ5BhAqccG4otRWIdLY?usp=sharing) which will use the already trained models. In this version, we also show that with our joint inference schema, AWD_LSTM itself can work suffciiently well and replace the entity composite model. Also note that we used nltk tokenizer while annotationg the types in this version. So it is slightly different from our current release. 
