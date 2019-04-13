@@ -18,17 +18,11 @@ cocacola
 can
 cider
 ice
-rum
 liquid
-brandy
 cup
-beer
-liqueur
 evaporated
 cookies
-alcohol
 drop
-whiskey
 cocktail
 lemonlime
 juiced
@@ -38,5 +32,4 @@ marsala
 tang
 jar
 icing
-vodka
 loaf
